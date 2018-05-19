@@ -1,0 +1,71 @@
+{
+  "name": "sfdx-auradoc",
+  "description": "Aura documentation plugin for SFDX",
+  "version": "0.0.0",
+  "author": "James Estevez @jstvz",
+  "bugs": "https://github.com/jstvz/sfdx-auradoc/issues",
+  "dependencies": {
+    "@oclif/command": "^1.4.30",
+    "@oclif/config": "^1.6.19",
+    "@oclif/errors": "^1.1.1",
+    "@salesforce/command": "^0.1.2",
+    "opn": "^5.3.0",
+    "fs-extra": "^5.0.0",
+    "glob": "^7.1.2",
+    "viz.js": "^1.8.1",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.13.22",
+    "@oclif/plugin-help": "^1.2.11",
+    "@oclif/test": "^1.0.6",
+    "@oclif/tslint": "^1.1.1",
+    "@salesforce/dev-config": "^1.1.0",
+    "@types/chai": "^4.1.3",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^10.1.2",
+    "chai": "^4.1.2",
+    "eslint": "^4.19.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "globby": "^8.0.1",
+    "mocha": "^5.2.0",
+    "prettier": "1.11.1",
+    "sinon": "^5.0.7",
+    "ts-node": "5",
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.3"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    ".oclif.manifest.json",
+    "/lib",
+    "/messages"
+  ],
+  "homepage": "https://github.com/jstvz/sfdx-auradoc",
+  "keywords": [
+    "sfdx-plugin"
+  ],
+  "license": "MIT",
+  "oclif": {
+    "commands": "./lib/commands",
+    "devPlugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": "jstvz/sfdx-auradoc",
+  "scripts": {
+    "build": "rm -rf lib && tsc",
+    "clean": "rm -f .oclif.manifest.json",
+    "lint": "tsc -p test --noEmit && tslint -p test -t stylish",
+    "postpublish": "yarn run clean",
+    "posttest": "yarn run lint",
+    "prepare": "yarn run build && oclif-dev manifest",
+    "prepublishOnly": "yarn run build && oclif-dev manifest",
+    "preversion": "yarn run clean",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md"
+  }
+}
