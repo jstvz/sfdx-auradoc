@@ -1,17 +1,38 @@
 sfdx-auradoc
 ============
 
-Aura documentation plugin for SFDX currently in alpha.
+![Sample output](https://raw.githubusercontent.com/jstvz/sfdx-auradoc/master/doc/sample.png)
+
+Aura documentation plugin for SFDX, currently in alpha.
 
 ```sh-session
-$ npm install -g sfdx-auradoc
-$ sfdx-auradoc COMMAND
-running command...
-$ sfdx-auradoc (-v|--version|version)
-sfdx-auradoc/0.0.0 linux-x64 node-v10.0.0
-$ sfdx-auradoc --help [COMMAND]
+$ sfdx plugins:link .
+$ sfdx auradoc:graph --help
 USAGE
-  $ sfdx-auradoc COMMAND
+  $ sfdx auradoc:graph
+
+OPTIONS
+  -a, --includeaura                               include the aura namespace
+
+  -c, --component=component                       [default: PROJECT_PATH] path to specific
+                                                  component directory to graph (accepts globs)
+
+  -f, --includeforce                              include the force namespace
+
+  -l, --includelightning                          include the lightning namespace
+
+  -o, --output=output                             [default: out.svg] graph filename, defaults to
+                                                  'out.svg'
+
+  -u, --includeui                                 include the ui namespace
+
+  --json                                          format output as json
+
+  --loglevel=(trace|debug|info|warn|error|fatal)  logging level for this command invocation
+
+EXAMPLE
+  $ sfdx auradoc:graph
+
 ...
 ```
 
