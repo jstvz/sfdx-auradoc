@@ -1,0 +1,9 @@
+{
+  "commandDescription": "Create a dependency graph of aura components.",
+  "componentFlagDescription": "path to specific component directory to graph (accepts globs)",
+  "outputFlagDescription": "graph filename, defaults to 'out.svg'",
+  "lightningFlagDescription": "include the lightning namespace",
+  "auraFlagDescription": "include the aura namespace",
+  "uiFlagDescription": "include the ui namespace",
+  "forceFlagDescription": "include the force namespace"
+}

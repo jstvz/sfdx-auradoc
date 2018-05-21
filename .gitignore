@@ -1,6 +1,11 @@
+test/force-app/
 *-debug.log
 *-error.log
 .oclif.manifest.json
 /lib
 /node_modules
 /tmp
+
+!src/lib/
+!src/lib/*
+!src/lib/**/*
