@@ -55,6 +55,9 @@
   "license": "MIT",
   "oclif": {
     "commands": "./lib/commands",
+    "topics": {
+      "auradoc": {"description": "generate aura component documentation"}
+    },
     "devPlugins": [
       "@oclif/plugin-help"
     ]
