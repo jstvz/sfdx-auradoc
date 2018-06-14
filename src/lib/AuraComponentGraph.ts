@@ -74,7 +74,6 @@ export class AuraComponentGraph {
     this.keyFilter = filter;
     this.CHILD_KEY = "children";
     this.XML_OPTIONS = {
-      ignoreAttrs: true,
       explicitChildren: true,
       childkey: this.CHILD_KEY
     };
@@ -114,11 +113,26 @@ export class AuraComponentGraph {
         ? "aura:component"
         : "aura:application";
       let root_cmp = result[root_key];
+      // extract apex controller from root and create child element
+      // adopt apex: namespace for tagging controllers
+      if(root_cmp.hasOwnProperty('$') && root_cmp.$.hasOwnProperty('controller')){
+        root_cmp[this.CHILD_KEY]['apex:'+root_cmp.$.controller] = [{}];
+      }
+      
       if (root_cmp.hasOwnProperty(this.CHILD_KEY)) {
         let cmp = root_cmp[this.CHILD_KEY];
+        
+        // expand componentreference meta tags to top-level elements
+        // used as hint mechanism when component is known to dynamically create a specific component
+        // should behave generally identical to other elements gleaned from .cmp file
+        if(cmp.hasOwnProperty('meta')){
+          cmp = this.promotemanualreferences(cmp);
+        }
+        // process aura:registerEvent and aura:handleEvent to determine event dependencies
+        cmp = this.promoteEvents(cmp);
         let child_keys = this.filterKeys(Object.keys(cmp));
         this.linkToChildNodes(root_key, child_keys);
-        for (let key of child_keys) {
+        for (let key of Object.keys(cmp)) {
           this.walk(cmp, key);
         }
       }
@@ -138,6 +152,50 @@ export class AuraComponentGraph {
       }
     });
     return out;
+  }
+
+  // for event references contained in aura:registerEvent, creates nodes for the event Type so it shows as first-level child
+  // TODO: figure out how to tag registering an event vs handling an event, color coding maybe??
+  private promoteEvents(comp): any {
+    Object.keys(comp).forEach((key) => {
+      if (key == 'aura:registerEvent' || key == 'aura:handler') {
+        comp[key].forEach((value) => {
+          let eType = '';
+          if(value.$.type != undefined){
+            // register event
+            eType = value.$.type;
+          } else if (value.$.event != undefined){
+            // handle custom event
+            eType = value.$.event;
+          }
+          if(eType != ''){
+            comp['event:'+eType] = [{}];
+          }
+        });
+      }
+    });
+    return comp;
+  }
+
+  // if we have a meta tag with a name of componentreference then expand the comma separated list to top-level children
+  // e.g. <meta name="componentreference" content="c:MyComponent, c:AnotherComponent, c:AllTheComponents"/>
+  private promotemanualreferences(comp): any {
+      if (comp.hasOwnProperty('meta')) {
+        comp['meta'].forEach((value) => {
+          if(value.hasOwnProperty('$') && value.$.name == 'componentreference' && value.$.content != undefined && value.$.content.length > 0){
+            let components = value.$.content.split(',');
+            components.forEach((c) => {
+              c = c.trim();
+              // if component doesn't already have a reference to this object
+              // we wouldn't want to get rid of valuable information
+              if(!comp.hasOwnProperty(c)){
+                comp[c] = [{}];
+              }
+            });
+          }
+        });
+      }
+    return comp;
   }
 
   // TODO: Refactor this method to be more efficient
@@ -160,14 +218,22 @@ export class AuraComponentGraph {
         let grandchildren = child[this.CHILD_KEY];
         let child_keys = this.filterKeys(Object.keys(grandchildren));
         this.linkToChildNodes(key, child_keys);
-        child_keys.forEach((child_key) => this.walk(grandchildren, child_key));
+        Object.keys(grandchildren).forEach((child_key) => this.walk(grandchildren, child_key));
       }
     }
   }
 
   private addEdge(nodeA: string, nodeB: string): void {
+    let attributes = '';
     if (nodeA !== nodeB) {
-      this.nodes.add(`"${nodeA}" -> "${nodeB}";`.padStart(4, " "));
+      // TODO: build way to define namespace tagging for attributes
+      if(nodeB.indexOf('apex:') > -1){
+        attributes = ' [color=blue]';
+      }
+      if(nodeB.indexOf('event:') > -1){
+        attributes = ' [color=red]';
+      }
+      this.nodes.add(`"${nodeA}" -> "${nodeB}" ${attributes};`.padStart(4, " "));
     }
   }
 
@@ -191,6 +257,8 @@ export class ComponentFilter {
   static FORCE_NS: string = "force";
   static UI_NS: string = "ui";
   static AURA_NS: string = "aura";
+  static APEX_NS: string = "apex";
+  static EVENT_NS: string = "event";
   static IGNORE_ALWAYS: string[] = [
     "aura:component",
     "aura:handler",
@@ -214,13 +282,17 @@ export class ComponentFilter {
     include_lightning = false,
     include_aura = false,
     include_ui = false,
-    include_force = false
+    include_force = false,
+    include_apex = false,
+    include_events = false
   } = {}): void {
     this.options = {
       lightning: include_lightning,
       aura: include_aura,
       ui: include_ui,
-      force: include_force
+      force: include_force,
+      apex: include_apex,
+      event: include_events
     };
   }
 
@@ -229,7 +301,9 @@ export class ComponentFilter {
       ComponentFilter.LIGHTNING_NS,
       ComponentFilter.FORCE_NS,
       ComponentFilter.UI_NS,
-      ComponentFilter.AURA_NS
+      ComponentFilter.AURA_NS,
+      ComponentFilter.APEX_NS,
+      ComponentFilter.EVENT_NS
     ]);
 
     // because ComponentFilter.IGNORE_ALWAYS.values() doesn't work on node
@@ -252,6 +326,12 @@ export class ComponentFilter {
     }
     if (this.options.force) {
       this.bad_keys.delete(ComponentFilter.FORCE_NS);
+    }
+    if (this.options.apex) {
+      this.bad_keys.delete(ComponentFilter.APEX_NS);
+    }
+    if (this.options.event) {
+      this.bad_keys.delete(ComponentFilter.EVENT_NS);
     }
   }
 

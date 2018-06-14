@@ -5,5 +5,7 @@
   "lightningFlagDescription": "include the lightning namespace",
   "auraFlagDescription": "include the aura namespace",
   "uiFlagDescription": "include the ui namespace",
-  "forceFlagDescription": "include the force namespace"
+  "forceFlagDescription": "include the force namespace",
+  "apexFlagDescription": "include apex controllers",
+  "eventFlagDescription": "include registered and handled events"
 }
