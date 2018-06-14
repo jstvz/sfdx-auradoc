@@ -118,16 +118,11 @@ export class AuraComponentGraph {
       if(root_cmp.hasOwnProperty('$') && root_cmp.$.hasOwnProperty('controller')){
         root_cmp[this.CHILD_KEY]['apex:'+root_cmp.$.controller] = [{}];
       }
-      
       if (root_cmp.hasOwnProperty(this.CHILD_KEY)) {
         let cmp = root_cmp[this.CHILD_KEY];
         
-        // expand componentreference meta tags to top-level elements
-        // used as hint mechanism when component is known to dynamically create a specific component
-        // should behave generally identical to other elements gleaned from .cmp file
-        if(cmp.hasOwnProperty('meta')){
-          cmp = this.promotemanualreferences(cmp);
-        }
+        // processes aura:dependency tags
+        cmp = this.promoteExplicitDependencies(cmp);
         // process aura:registerEvent and aura:handleEvent to determine event dependencies
         cmp = this.promoteEvents(cmp);
         let child_keys = this.filterKeys(Object.keys(cmp));
@@ -154,7 +149,7 @@ export class AuraComponentGraph {
     return out;
   }
 
-  // for event references contained in aura:registerEvent, creates nodes for the event Type so it shows as first-level child
+  // for event references contained in aura:registerEvent, creates nodes for the event Type so it shows as first-level citizen
   // TODO: figure out how to tag registering an event vs handling an event, color coding maybe??
   private promoteEvents(comp): any {
     Object.keys(comp).forEach((key) => {
@@ -177,21 +172,16 @@ export class AuraComponentGraph {
     return comp;
   }
 
-  // if we have a meta tag with a name of componentreference then expand the comma separated list to top-level children
-  // e.g. <meta name="componentreference" content="c:MyComponent, c:AnotherComponent, c:AllTheComponents"/>
-  private promotemanualreferences(comp): any {
-      if (comp.hasOwnProperty('meta')) {
-        comp['meta'].forEach((value) => {
-          if(value.hasOwnProperty('$') && value.$.name == 'componentreference' && value.$.content != undefined && value.$.content.length > 0){
-            let components = value.$.content.split(',');
-            components.forEach((c) => {
-              c = c.trim();
-              // if component doesn't already have a reference to this object
-              // we wouldn't want to get rid of valuable information
-              if(!comp.hasOwnProperty(c)){
-                comp[c] = [{}];
-              }
-            });
+  private promoteExplicitDependencies(comp): any {
+      if (comp.hasOwnProperty('aura:dependency')) {
+        comp['aura:dependency'].forEach((value) => {
+          if(value.hasOwnProperty('$') && value.$.resource != undefined && value.$.resource.length > 0){
+            let c = value.$.resource.trim();
+            // if component doesn't already have a reference to this object
+            // we wouldn't want to get rid of valuable information
+            if(!comp.hasOwnProperty(c)){
+              comp[c] = [{}];
+            }
           }
         });
       }
