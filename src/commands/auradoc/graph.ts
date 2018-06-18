@@ -1,6 +1,5 @@
-import { flags } from "@oclif/command";
 import { join } from "path";
-import { SfdxCommand } from "@salesforce/command";
+import { SfdxCommand, flags } from "@salesforce/command";
 import { Project, Messages } from "@salesforce/core";
 import { Grapher, ComponentFilter } from "../../lib/AuraComponentGraph";
 
