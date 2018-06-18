@@ -8,7 +8,7 @@
     "@oclif/command": "^1.4.30",
     "@oclif/config": "^1.6.19",
     "@oclif/errors": "^1.1.1",
-    "@salesforce/command": "^0.1.2",
+    "@salesforce/command": "0.1.6",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "heroku-cli-util": "^8.0.1",
@@ -18,8 +18,8 @@
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
-    "@oclif/dev-cli": "^1.13.22",
-    "@oclif/plugin-help": "^1.2.11",
+    "@oclif/dev-cli": "1",
+    "@oclif/plugin-help": "1",
     "@oclif/test": "^1.0.6",
     "@oclif/tslint": "^1.1.1",
     "@salesforce/dev-config": "^1.1.0",
@@ -38,6 +38,7 @@
     "sinon": "^5.0.7",
     "ts-node": "5",
     "tslint": "^5.10.0",
+    "tslib": "1",
     "typescript": "^2.8.3"
   },
   "engines": {
@@ -64,14 +65,10 @@
   },
   "repository": "jstvz/sfdx-auradoc",
   "scripts": {
-    "build": "rm -rf lib && tsc",
-    "clean": "rm -f .oclif.manifest.json",
-    "lint": "tsc -p test --noEmit && tslint -p test -t stylish",
-    "postpublish": "yarn run clean",
-    "posttest": "yarn run lint",
-    "prepare": "yarn run build && oclif-dev manifest",
-    "prepublishOnly": "yarn run build && oclif-dev manifest",
-    "preversion": "yarn run clean",
+    "postpack": "rm -f .oclif.manifest.json",
+    "posttest": "tsc -p test --noEmit && tslint -p test -t stylish",
+    "prepack": "rm -rf lib && tsc && oclif-dev manifest && oclif-dev readme",
+    "prepare": "rm -rf lib && tsc && oclif-dev manifest && oclif-dev readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md"
   }
