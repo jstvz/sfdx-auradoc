@@ -4,6 +4,9 @@ import { SfdxCommand } from "@salesforce/command";
 import { Project, Messages } from "@salesforce/core";
 import { Grapher, ComponentFilter } from "../../lib/AuraComponentGraph";
 
+const path = require("path");
+const os = require("os");
+
 Messages.importMessagesDirectory(join(__dirname, "..", "..", ".."));
 const messages = Messages.loadMessages("sfdx-auradoc", "graph");
 
@@ -22,7 +25,7 @@ export default class Graph extends SfdxCommand {
     output: flags.string({
       char: "o",
       description: messages.getMessage("outputFlagDescription"),
-      default: "out.svg"
+      default: path.join(os.tmpdir(),"out.svg")
     }),
     includelightning: flags.boolean({
       char: "l",
@@ -39,6 +42,14 @@ export default class Graph extends SfdxCommand {
     includeforce: flags.boolean({
       char: "f",
       description: messages.getMessage("forceFlagDescription")
+    }),
+    includeapexcontroller: flags.boolean({
+      char: "p",
+      description: messages.getMessage("apexFlagDescription")
+    }),
+    includeevents: flags.boolean({
+      char: "e",
+      description: messages.getMessage("eventFlagDescription")
     })
   };
 
@@ -61,6 +72,8 @@ export default class Graph extends SfdxCommand {
       include_aura: this.flags.includeaura,
       include_ui: this.flags.includeui,
       include_force: this.flags.includeforce,
+      include_apex: this.flags.includeapexcontroller,
+      include_events: this.flags.includeevents,
       return_full_graph: false
     };
 
