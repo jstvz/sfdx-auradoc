@@ -15,7 +15,7 @@ $ npm install -g sfdx-auradoc
 $ sfdx-auradoc COMMAND
 running command...
 $ sfdx-auradoc (-v|--version|version)
-sfdx-auradoc/0.0.0 linux-x64 node-v10.4.1
+sfdx-auradoc/0.0.0 linux-x64 node-v11.7.0
 $ sfdx-auradoc --help [COMMAND]
 USAGE
   $ sfdx-auradoc COMMAND
